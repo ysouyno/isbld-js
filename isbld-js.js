@@ -1,6 +1,5 @@
 var path = require("path");
 var fs = require("fs");
-// const iconv = require("iconv-lite");
 const { exec } = require("child_process");
 
 class Param {
@@ -23,7 +22,10 @@ class Param {
     this.switches = "-w50 -e50 -v3 -g";
     this.builder = data.is_home + "\\System\\ISCmdBld.exe";
     this.installproject = data.project_home + "\\" + data.project_name;
-    this.disk1 = data.project_home + "\\Media\\EIOSetup_SCH\\Disk Image\\Disk1";
+    this.disk1 =
+      data.project_home + "\\Media\\EIOSetup_SCH\\Disk Images\\Disk1";
+    this.winrar = data.winrar;
+    this.out = data.out;
   }
 
   print() {
@@ -39,6 +41,8 @@ class Param {
     console.log(this.builder);
     console.log(this.installproject);
     console.log(this.disk1);
+    console.log(this.winrar);
+    console.log(this.out);
   }
 }
 
@@ -46,11 +50,11 @@ function run_cmd(command) {
   exec(command, { encoding: "binary" }, (err, stdout, stderr) => {
     if (err) {
       console.log('"%s" failed', command);
-      return;
+      return false;
     }
 
-    // console.log(iconv.decode(stdout, "cp936"));
     console.log(stdout);
+    return true;
   });
 }
 
@@ -81,7 +85,7 @@ function get_param() {
   });
 
   const param = new Param(config);
-  // param.print();
+  param.print();
 
   return param;
 }
@@ -107,12 +111,38 @@ function compile(param) {
     " " +
     param.switches;
   console.log(command);
-  run_cmd(command);
+  return run_cmd(command);
+}
+
+function build(param) {
+  let command = '"' + param.builder + '" -p "' + param.installproject + '"';
+  console.log(command);
+  return run_cmd(command);
+}
+
+function compress_in_one(param) {
+  let command =
+    '"' +
+    param.winrar +
+    '" a "' +
+    param.disk1 +
+    "\\" +
+    param.out +
+    '" "' +
+    param.disk1 +
+    '\\*.*"' +
+    ' -ep -sfx -ibck -z"' +
+    __dirname +
+    '\\Script.txt"';
+  console.log(command);
+  return run_cmd(command);
 }
 
 function main() {
   let param = get_param();
   compile(param);
+  build(param);
+  compress_in_one(param);
 }
 
 main();
