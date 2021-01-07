@@ -1,29 +1,25 @@
-var path = require("path");
-var fs = require("fs");
-const { exec } = require("child_process");
+var path = require('path');
+var fs = require('fs');
+const {exec} = require('child_process');
 
 class Param {
   constructor(config) {
     let raw_data = fs.readFileSync(config);
     let data = JSON.parse(raw_data);
-    this.compiler = data.is_home + "\\System\\Compile.exe";
-    this.rulfiles = data.project_home + "\\Script Files\\Setup.rul";
+    this.compiler = data.is_home + '\\System\\Compile.exe';
+    this.rulfiles = data.project_home + '\\Script Files\\Setup.rul';
     this.libraries = '"isrt.obl" "ifx.obl"';
-    this.linkpaths =
-      '-LibPath"' +
-      data.is_home +
-      '\\Script\\Ifx\\Lib" -LibPath"' +
-      data.is_home +
-      '\\Script\\Isrt\\Lib"';
-    this.includeifx = data.is_home + "\\Script\\Ifx\\Include";
-    this.includeisrt = data.is_home + "\\Script\\Isrt\\Include";
-    this.includescript = data.project_home + "\\Script Files";
-    this.definitions = "";
-    this.switches = "-w50 -e50 -v3 -g";
-    this.builder = data.is_home + "\\System\\ISCmdBld.exe";
-    this.installproject = data.project_home + "\\" + data.project_name;
+    this.linkpaths = '-LibPath"' + data.is_home +
+        '\\Script\\Ifx\\Lib" -LibPath"' + data.is_home + '\\Script\\Isrt\\Lib"';
+    this.includeifx = data.is_home + '\\Script\\Ifx\\Include';
+    this.includeisrt = data.is_home + '\\Script\\Isrt\\Include';
+    this.includescript = data.project_home + '\\Script Files';
+    this.definitions = '';
+    this.switches = '-w50 -e50 -v3 -g';
+    this.builder = data.is_home + '\\System\\ISCmdBld.exe';
+    this.installproject = data.project_home + '\\' + data.project_name;
     this.disk1 =
-      data.project_home + "\\Media\\EIOSetup_SCH\\Disk Images\\Disk1";
+        data.project_home + '\\Media\\EIOSetup_SCH\\Disk Images\\Disk1';
     this.winrar = data.winrar;
     this.out = data.out;
   }
@@ -47,7 +43,7 @@ class Param {
 }
 
 function run_cmd(command) {
-  exec(command, { encoding: "binary" }, (err, stdout, stderr) => {
+  exec(command, {encoding: 'binary'}, (err, stdout, stderr) => {
     if (err) {
       console.log('"%s" failed', command);
       return false;
@@ -60,11 +56,11 @@ function run_cmd(command) {
 
 function gen_config(config) {
   let default_config = {
-    is_home: "C:\\Program Files (x86)\\InstallShield\\2018",
-    project_home: "D:\\project",
-    project_name: "Your Project Name.ism",
-    winrar: "C:\\Program Files (x86)\\WinRAR\\WinRAR.exe",
-    out: "out.exe",
+    is_home: 'C:\\Program Files (x86)\\InstallShield\\2018',
+    project_home: 'D:\\project',
+    project_name: 'Your Project Name.ism',
+    winrar: 'C:\\Program Files (x86)\\WinRAR\\WinRAR.exe',
+    out: 'out.exe',
   };
   let data = JSON.stringify(default_config, null, 4);
   fs.writeFileSync(config, data);
@@ -72,14 +68,12 @@ function gen_config(config) {
 
 function get_param() {
   var config = path.join(
-    path.dirname(__filename),
-    path.basename(__filename, ".js") + ".json"
-  );
+      path.dirname(__filename), path.basename(__filename, '.js') + '.json');
   console.log(config);
 
   fs.access(config, fs.F_OK, (err) => {
     if (err) {
-      console.log("%s no exists", config);
+      console.log('%s no exists', config);
       gen_config(config);
     }
   });
@@ -91,25 +85,10 @@ function get_param() {
 }
 
 function compile(param) {
-  let command =
-    '"' +
-    param.compiler +
-    '" "' +
-    param.rulfiles +
-    '" ' +
-    param.libraries +
-    " " +
-    param.linkpaths +
-    ' -I"' +
-    param.includeifx +
-    '" -I"' +
-    param.includeisrt +
-    '" -I"' +
-    param.includescript +
-    '" ' +
-    param.definitions +
-    " " +
-    param.switches;
+  let command = '"' + param.compiler + '" "' + param.rulfiles + '" ' +
+      param.libraries + ' ' + param.linkpaths + ' -I"' + param.includeifx +
+      '" -I"' + param.includeisrt + '" -I"' + param.includescript + '" ' +
+      param.definitions + ' ' + param.switches;
   console.log(command);
   return run_cmd(command);
 }
@@ -121,19 +100,9 @@ function build(param) {
 }
 
 function compress_in_one(param) {
-  let command =
-    '"' +
-    param.winrar +
-    '" a "' +
-    param.disk1 +
-    "\\" +
-    param.out +
-    '" "' +
-    param.disk1 +
-    '\\*.*"' +
-    ' -ep -sfx -ibck -z"' +
-    __dirname +
-    '\\Script.txt"';
+  let command = '"' + param.winrar + '" a "' + param.disk1 + '\\' + param.out +
+      '" "' + param.disk1 + '\\*.*"' +
+      ' -ep -sfx -ibck -z"' + __dirname + '\\Script.txt"';
   console.log(command);
   return run_cmd(command);
 }
