@@ -1,7 +1,7 @@
 # isbld-js
 
-## How to compile into exe
+## How to compile into a static executable file
 
-``` shell
+``` shellsession
 nexe isbld-js.js
 ```
